@@ -3,6 +3,11 @@
 #include "piconfc.h"
 #include <string.h>
 
+#ifdef NTAG_DEBUG
+    #include "pico/stdio.h"
+    #include <stdio.h>
+#endif
+
 enum NTAG21X piconfc_NTAG_getModel(PicoNFCConfig *config) {
     uint8_t rbuf[4];
     bool success = piconfc_NTAG_read1Page(config, 0x03, rbuf);

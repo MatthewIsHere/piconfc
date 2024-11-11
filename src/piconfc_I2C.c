@@ -60,6 +60,9 @@ bool piconfc_I2C_sendcommand_andack(i2c_inst_t* block, uint8_t * cmd, uint8_t le
     // Wait for the device to be ready before reading the ACK
     if (!piconfc_I2C_waitready(block, timeout)) return false;
 
+    // Brief delay to allow the device to process the command
+    sleep_ms(1);
+
     // Check if the ACK was received
     if (!piconfc_I2C_readack(block)) {
         return false;

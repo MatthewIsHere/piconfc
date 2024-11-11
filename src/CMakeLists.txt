@@ -9,3 +9,6 @@ target_link_libraries(piconfc PUBLIC pico_stdlib hardware_i2c pico_stdio)
 
 #Uncomment for debugging
 # target_compile_definitions(piconfc PRIVATE DEBUG=1)
+# target_compile_definitions(piconfc PRIVATE I2C_DEBUG=1)
+# target_compile_definitions(piconfc PRIVATE NDEF_DEBUG=1)
+# target_compile_definitions(piconfc PRIVATE NTAG_DEBUG=1)

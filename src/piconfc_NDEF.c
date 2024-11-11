@@ -4,6 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef NDEF_DEBUG
+    #include "piconfc_I2C.h"
+#endif
+
 const char *URIPrefixes[] = {
     "", "http://www.", "https://www.", "http://", "https://", "tel:",
     "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.", "ftps://",
@@ -99,35 +103,36 @@ int piconfc_NDEF_encodeTLV(uint8_t *data, uint16_t datasize, uint8_t *result, in
 }
 
 int piconfc_NDEF_parseMessage(uint8_t *buffer, int bufsize, NDEFRecord **dest) {
-    int records_num = piconfc_NDEF_messageLen(buffer, bufsize);
-    if (records_num == 0) // Corrected condition to check if no records are found
+    int expected_records = piconfc_NDEF_messageLen(buffer, bufsize);
+    if (expected_records == 0) // Corrected condition to check if no records are found
         return 0;
 
     // Allocate memory for the array of NDEF records
-    NDEFRecord *records = (NDEFRecord *)malloc(records_num * sizeof(NDEFRecord));
+    NDEFRecord *records = (NDEFRecord *)malloc(expected_records * sizeof(NDEFRecord));
     if (records == NULL) {
         return 0; // Return 0 if memory allocation fails
     }
-
-    int offset = 0;
-    int j = 0;
+    #ifdef NDEF_DEBUG
+        printf("Allocated %d bytes for parseMessage\n", expected_records * sizeof(NDEFRecord));
+    #endif
 
     // Parse each record and store it in the records array
-    for (int i = 0; i < bufsize; i++) {
-        if (j + 1 >= records_num) {
-            break; // Stop if we've reached the maximum expected records
-        }
-        
-        // Parse an individual NDEF record and update offset
-        int new_offset = piconfc_NDEF_parseRecord(buffer, bufsize, offset, &records[j++]);
+    int records_parsed = 0;
+    int offset = 0;
+    while (offset <= bufsize && records_parsed < expected_records) {
+        int new_offset = piconfc_NDEF_parseRecord(buffer, bufsize, offset, &records[records_parsed]);
         if (new_offset == -1) {
-            break; // Stop if parsing fails
+            break;
         }
+        records_parsed++;
         offset = new_offset;
     }
 
     *dest = records; // Set the destination pointer to the records array
-    return records_num; // Return the number of records parsed
+    #ifdef NDEF_DEBUG
+        printf("made it out of parseMessage\n");
+    #endif
+    return records_parsed; // Return the number of records parsed
 }
 
 int piconfc_NDEF_messageLen(uint8_t *buffer, int bufsize) {
@@ -135,6 +140,9 @@ int piconfc_NDEF_messageLen(uint8_t *buffer, int bufsize) {
 
     // Check if buffer is empty or if the first record has the ME (Message End) flag set
     if (bufsize < 1 || (buffer[0] & 0x40)) {
+        #ifdef NDEF_DEBUG
+            printf("Found message end at first record. Returning 1\n");
+        #endif
         return 1; // Return 1 if there's only one record with ME flag set
     }
 
@@ -180,7 +188,10 @@ int piconfc_NDEF_messageLen(uint8_t *buffer, int bufsize) {
         i += payload_len;
 
         // Increment the total record count
-        totalRecords++;
+            #ifdef NDEF_DEBUG
+                    printf("Incremented total records to %d\n", totalRecords + 1);
+            #endif
+            totalRecords++;
     }
     return totalRecords;
 }
