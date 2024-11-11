@@ -1,4 +1,5 @@
 #include "pico/stdlib.h"
+#include <stdlib.h>
 #include "piconfc.h"
 #include "piconfc_I2C.h"
 
