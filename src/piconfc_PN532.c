@@ -8,6 +8,9 @@
 
 #define DEFAULT_TIMEOUT 5000
 
+// Hoist
+void printhex(uint8_t* buff, int len);
+
 float piconfc_PN532_firmwareVersion(PicoNFCConfig *config) {
     uint8_t command = PN532_COMMAND_GETFIRMWAREVERSION;
     
@@ -163,4 +166,12 @@ bool piconfc_PN532_initiatorDataExchange(PicoNFCConfig *config, uint8_t *send, u
     *received_length = len - 2;
 
     return true;
+}
+
+// Does what it says
+void printhex(uint8_t* buff, int len) {
+    for (int i = 0; i < len; i++) {
+        printf("%02X ", buff[i]);
+    }
+    printf("\n");
 }
