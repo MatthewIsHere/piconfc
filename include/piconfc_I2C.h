@@ -128,4 +128,7 @@ void piconfc_I2C_writecommand(i2c_inst_t* block, uint8_t * cmd, uint8_t cmdlen);
  */
 uint8_t piconfc_I2C_parseresponse(i2c_inst_t *block, uint8_t *buffer, uint8_t expected_data_len);
 
+// Does what it says
+void printhex(uint8_t *buff, int len);
+
 #endif /* PICONFC_I2C_H */
